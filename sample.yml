@@ -332,6 +332,17 @@ components:
         - user_id
         - items
 
+    Error:
+      type: object
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+      required:
+        - code
+        - message
+
   parameters:
     UserIdParam:
       name: userId
@@ -382,15 +393,3 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
-
-  schemas:
-    Error:
-      type: object
-      properties:
-        code:
-          type: integer
-        message:
-          type: string
-      required:
-        - code
-        - message
