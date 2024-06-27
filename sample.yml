@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
-  title: Multi-Service API
-  description: A comprehensive API specification covering multiple services with various endpoints and operations.
+  title: E-commerce API
+  description: API for managing an e-commerce platform including orders, products, and users.
   version: 1.0.0
   contact:
     name: API Support
@@ -60,28 +60,22 @@ paths:
       tags:
         - users
       parameters:
-        - in: query
-          name: limit
-          schema:
-            type: integer
-            minimum: 1
-            maximum: 100
-            default: 20
-        - in: query
-          name: offset
-          schema:
-            type: integer
-            minimum: 0
-            default: 0
+        - $ref: '#/components/parameters/LimitParam'
+        - $ref: '#/components/parameters/OffsetParam'
       responses:
         '200':
           description: Successful response
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/User'
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/User'
+                  has_more:
+                    type: boolean
       security:
         - BearerAuth: []
     post:
@@ -93,7 +87,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/NewUser'
+              $ref: '#/components/schemas/User'
       responses:
         '201':
           description: User created successfully
@@ -112,11 +106,7 @@ paths:
       tags:
         - users
       parameters:
-        - in: path
-          name: userId
-          required: true
-          schema:
-            type: integer
+        - $ref: '#/components/parameters/UserIdParam'
       responses:
         '200':
           description: Successful response
@@ -129,50 +119,17 @@ paths:
       security:
         - BearerAuth: []
     put:
-      summary: Update user
+      summary: Update a user
       tags:
         - users
       parameters:
-        - in: path
-          name: userId
-          required: true
-          schema:
-            type: integer
+        - $ref: '#/components/parameters/UserIdParam'
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateUser'
-      responses:
-        '200':
-          description: User updated successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'
-        '400':
-          $ref: '#/components/responses/BadRequestError'
-        '404':
-          $ref: '#/components/responses/NotFoundError'
-      security:
-        - BearerAuth: []
-    patch:
-      summary: Partially update user
-      tags:
-        - users
-      parameters:
-        - in: path
-          name: userId
-          required: true
-          schema:
-            type: integer
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PatchUser'
+              $ref: '#/components/schemas/User'
       responses:
         '200':
           description: User updated successfully
@@ -187,15 +144,11 @@ paths:
       security:
         - BearerAuth: []
     delete:
-      summary: Delete user
+      summary: Delete a user
       tags:
         - users
       parameters:
-        - in: path
-          name: userId
-          required: true
-          schema:
-            type: integer
+        - $ref: '#/components/parameters/UserIdParam'
       responses:
         '204':
           description: User deleted successfully
@@ -210,28 +163,22 @@ paths:
       tags:
         - products
       parameters:
-        - in: query
-          name: limit
-          schema:
-            type: integer
-            minimum: 1
-            maximum: 100
-            default: 20
-        - in: query
-          name: offset
-          schema:
-            type: integer
-            minimum: 0
-            default: 0
+        - $ref: '#/components/parameters/LimitParam'
+        - $ref: '#/components/parameters/OffsetParam'
       responses:
         '200':
           description: Successful response
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Product'
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Product'
+                  has_more:
+                    type: boolean
     post:
       summary: Create a new product
       tags:
@@ -239,23 +186,9 @@ paths:
       requestBody:
         required: true
         content:
-          multipart/form-data:
+          application/json:
             schema:
-              type: object
-              properties:
-                name:
-                  type: string
-                description:
-                  type: string
-                price:
-                  type: number
-                  format: float
-                image:
-                  type: string
-                  format: binary
-              required:
-                - name
-                - price
+              $ref: '#/components/schemas/Product'
       responses:
         '201':
           description: Product created successfully
@@ -269,6 +202,29 @@ paths:
         - BearerAuth: []
 
   /orders:
+    get:
+      summary: List all orders
+      tags:
+        - orders
+      parameters:
+        - $ref: '#/components/parameters/LimitParam'
+        - $ref: '#/components/parameters/OffsetParam'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Order'
+                  has_more:
+                    type: boolean
+      security:
+        - BearerAuth: []
     post:
       summary: Create a new order
       tags:
@@ -278,7 +234,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/NewOrder'
+              $ref: '#/components/schemas/Order'
       responses:
         '201':
           description: Order created successfully
@@ -309,7 +265,7 @@ components:
       type: object
       properties:
         id:
-          type: integer
+          type: string
         username:
           type: string
         email:
@@ -318,49 +274,15 @@ components:
         created_at:
           type: string
           format: date-time
-
-    NewUser:
-      type: object
-      properties:
-        username:
-          type: string
-        email:
-          type: string
-          format: email
-        password:
-          type: string
-          format: password
       required:
         - username
         - email
-        - password
-
-    UpdateUser:
-      type: object
-      properties:
-        username:
-          type: string
-        email:
-          type: string
-          format: email
-      required:
-        - username
-        - email
-
-    PatchUser:
-      type: object
-      properties:
-        username:
-          type: string
-        email:
-          type: string
-          format: email
 
     Product:
       type: object
       properties:
         id:
-          type: integer
+          type: string
         name:
           type: string
         description:
@@ -368,56 +290,72 @@ components:
         price:
           type: number
           format: float
-        image_url:
-          type: string
-          format: uri
-
-    NewOrder:
-      type: object
-      properties:
-        user_id:
+        stock:
           type: integer
-        items:
-          type: array
-          items:
-            type: object
-            properties:
-              product_id:
-                type: integer
-              quantity:
-                type: integer
+        created_at:
+          type: string
+          format: date-time
       required:
-        - user_id
-        - items
+        - name
+        - price
+        - stock
 
     Order:
       type: object
       properties:
         id:
-          type: integer
+          type: string
         user_id:
-          type: integer
-        items:
-          type: array
-          items:
-            type: object
-            properties:
-              product_id:
-                type: integer
-              quantity:
-                type: integer
-              price:
-                type: number
-                format: float
+          type: string
         total:
           type: number
-          format: double
+          format: float
         status:
           type: string
           enum: [pending, processing, shipped, delivered, cancelled]
         created_at:
           type: string
           format: date-time
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              product_id:
+                type: string
+              quantity:
+                type: integer
+              price:
+                type: number
+                format: float
+      required:
+        - user_id
+        - items
+
+  parameters:
+    UserIdParam:
+      name: userId
+      in: path
+      required: true
+      schema:
+        type: string
+    LimitParam:
+      name: limit
+      in: query
+      description: Number of items to return
+      schema:
+        type: integer
+        default: 10
+        minimum: 1
+        maximum: 100
+    OffsetParam:
+      name: offset
+      in: query
+      description: Number of items to skip
+      schema:
+        type: integer
+        default: 0
+        minimum: 0
 
   responses:
     UnauthorizedError:
@@ -425,39 +363,34 @@ components:
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              message:
-                type: string
-                example: "Unauthorized"
-
+            $ref: '#/components/schemas/Error'
     BadRequestError:
       description: Invalid input
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              message:
-                type: string
-              errors:
-                type: array
-                items:
-                  type: string
-
+            $ref: '#/components/schemas/Error'
     NotFoundError:
       description: The specified resource was not found
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              message:
-                type: string
-                example: "Resource not found"
+            $ref: '#/components/schemas/Error'
 
   securitySchemes:
     BearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+      required:
+        - code
+        - message
