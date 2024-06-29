@@ -629,4 +629,16 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#
+            $ref: '#/components/schemas/Error'
+    NotFoundError:
+      description: The requested resource could not be found.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
